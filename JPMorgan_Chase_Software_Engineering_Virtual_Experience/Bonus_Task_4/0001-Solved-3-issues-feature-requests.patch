@@ -1,0 +1,192 @@
+From 8747312ff698a44d98af4680a63c95e21fd75d63 Mon Sep 17 00:00:00 2001
+From: Melwyn Francis Carlo <melwyncarlo@gmail.com>
+Date: Tue, 9 Nov 2021 16:57:47 +0530
+Subject: [PATCH] Solved 3 issues/feature-requests
+
+Pull Request Link: https://github.com/LibreCAD/LibreCAD/pull/1401
+
+---
+ .../src/actions/rs_actionblocksremove.cpp     | 26 +++++++--
+ librecad/src/lib/engine/lc_splinepoints.cpp   |  6 +-
+ librecad/src/main/qc_applicationwindow.cpp    | 56 +++++++++++++------
+ librecad/src/main/qc_applicationwindow.h      |  2 +
+ 4 files changed, 68 insertions(+), 22 deletions(-)
+
+diff --git a/librecad/src/actions/rs_actionblocksremove.cpp b/librecad/src/actions/rs_actionblocksremove.cpp
+index 13623091..5c095ac1 100644
+--- a/librecad/src/actions/rs_actionblocksremove.cpp
++++ b/librecad/src/actions/rs_actionblocksremove.cpp
+@@ -78,8 +78,9 @@ void RS_ActionBlocksRemove::trigger() {
+ 					if (e->rtti()==RS2::EntityInsert) {
+ 						RS_Insert* ins = (RS_Insert*)e;
+ 						if (ins->getName()==block->getName() && !ins->isUndone()) {
+-                            document->addUndoable(ins);
++                            document->removeUndoable(ins);
+                             ins->setUndoState(true);
++                            ins->reparent(NULL);
+ 							done = false;
+ 							break;
+ 						}
+@@ -97,9 +98,26 @@ void RS_ActionBlocksRemove::trigger() {
+ 		// close all windows that are editing this block:
+ 		RS_DIALOGFACTORY->closeEditBlockWindow(block);
+ 
+-        // Now remove block from the block list, but do not delete:
+-        block->setUndoState(true);
+-        document->addUndoable(block);
++      // Now remove block from the block list, but do not delete:
++      const int maximumBlockNameSize = 10;
++      const int numberOfCharsAZ = 26;
++      const int lowerCaseAsciiA = 97;
++      bool randomBlockNameFound = false;
++      while (!randomBlockNameFound) {
++          QString randomBlockName("");
++
++          for (int i = 0; i < maximumBlockNameSize; i++) {
++              const int randomNumber = (rand() % numberOfCharsAZ) + lowerCaseAsciiA;
++              randomBlockName = randomBlockName.append(QChar(randomNumber));
++          }
++          randomBlockName = block->getName().append("_").append(randomBlockName);
++
++          if (bl->rename(block, randomBlockName)) {
++             randomBlockNameFound = true;
++          }
++      }
++      block->setUndoState(true);
++      document->removeUndoable(block);
+     }
+     document->endUndoCycle();
+ 
+diff --git a/librecad/src/lib/engine/lc_splinepoints.cpp b/librecad/src/lib/engine/lc_splinepoints.cpp
+index e6324ec1..0669f390 100644
+--- a/librecad/src/lib/engine/lc_splinepoints.cpp
++++ b/librecad/src/lib/engine/lc_splinepoints.cpp
+@@ -999,7 +999,9 @@ RS_Vector LC_SplinePoints::GetSplinePointAtDist(double dDist, int iStartSeg,
+ 
+ 	if(dDist <= dQuadDist)
+ 	{
+-		double dt = GetQuadPointAtDist(vStart, vControl, vEnd, 0.0, dDist);
++        double t0 = 0.0;
++        if (i == (iStartSeg + 1)) { t0 = dStartT; }
++		double dt = GetQuadPointAtDist(vStart, vControl, vEnd, t0, dDist);
+ 		vRes = GetQuadPoint(vStart, vControl, vEnd, dt);
+ 		*piSeg = i - 1;
+ 		*pdt = dt;
+@@ -1070,7 +1072,7 @@ RS_Vector LC_SplinePoints::getNearestMiddle(const RS_Vector& coord,
+     vRes = GetSplinePointAtDist(dDist, 1, 0.0, &iNext, &dt);
+ 	if(vRes.valid) dMinDist = (vRes - coord).magnitude();
+     i = 2;
+-	while(vRes.valid && i < middlePoints)
++	while(vRes.valid && i <= middlePoints)
+ 	{
+ 		vNext = GetSplinePointAtDist(dDist, iNext, dt, &iNext, &dt);
+ 		dCurDist = (vNext - coord).magnitude();
+diff --git a/librecad/src/main/qc_applicationwindow.cpp b/librecad/src/main/qc_applicationwindow.cpp
+index 768a3fa4..aaf750fb 100644
+--- a/librecad/src/main/qc_applicationwindow.cpp
++++ b/librecad/src/main/qc_applicationwindow.cpp
+@@ -28,7 +28,7 @@
+ **********************************************************************/
+ 
+ // Changes: https://github.com/LibreCAD/LibreCAD/commits/master/librecad/src/main/qc_applicationwindow.cpp
+-
++#include <iostream>
+ #include "qc_applicationwindow.h"
+ 
+ #include <QStatusBar>
+@@ -606,17 +606,24 @@ int QC_ApplicationWindow::showCloseDialog(QC_MDIWindow * w, bool showSaveAll)
+  */
+ void QC_ApplicationWindow::enableFileActions(QC_MDIWindow* w)
+ {
+-	if (!w || w->getDocument()->getFilename().isEmpty()) {
+-		a_map["FileSave"]->setText(tr("&Save"));
+-		a_map["FileSaveAs"]->setText(tr("Save &as..."));
+-	}
+-	else {
+-		QString name = format_filename_caption(w->getDocument()->getFilename());
+-		a_map["FileSave"]->setText(tr("&Save %1").arg(name));
+-		a_map["FileSaveAs"]->setText(tr("Save %1 &as...").arg(name));
+-	}
+-	a_map["FileSave"]->setEnabled(w);
+-	a_map["FileSaveAs"]->setEnabled(w);
++   if (windowIsInBlockMode) {
++      a_map["FileSave"]->setText(tr("&Save"));
++	   a_map["FileSaveAs"]->setText(tr("Save &active block to file"));
++      a_map["FileSave"]->setEnabled(false);
++   } else {
++	   if (!w || w->getDocument()->getFilename().isEmpty()) {
++		   a_map["FileSave"]->setText(tr("&Save"));
++		   a_map["FileSaveAs"]->setText(tr("Save &as..."));
++	   }
++	   else {
++		   QString name = format_filename_caption(w->getDocument()->getFilename());
++		   a_map["FileSave"]->setText(tr("&Save %1").arg(name));
++		   a_map["FileSaveAs"]->setText(tr("Save %1 &as...").arg(name));
++	   }
++      a_map["FileSave"]->setEnabled(w);
++   }
++
++   a_map["FileSaveAs"]->setEnabled(w);
+ 	a_map["FileSaveAll"]->setEnabled(w && window_list.count() > 1);
+ 	a_map["FileExportMakerCam"]->setEnabled(w);
+ 	a_map["FilePrintPDF"]->setEnabled(w);
+@@ -993,6 +1000,11 @@ void QC_ApplicationWindow::slotWindowActivated(QMdiSubWindow* w) {
+     activedMdiSubWindow=w;
+ 
+     QC_MDIWindow* m = qobject_cast<QC_MDIWindow*>(w);
++    if (w->windowTitle().contains("Block")) {
++        windowIsInBlockMode = true;
++    } else {
++        windowIsInBlockMode = false;
++    }
+     enableFileActions(m);
+ 
+     if (m && m->getDocument()) {
+@@ -1908,15 +1920,27 @@ void QC_ApplicationWindow::slotFileSave() {
+ 		recentFiles->updateRecentFilesMenu();
+ }
+ 
+-
++#include "qg_actionhandler.h"
++#include "rs_actionblockssave.h"
++#include <iostream>
+ 
+ /**
+  * Menu file -> save as.
+  */
+ void QC_ApplicationWindow::slotFileSaveAs() {
+-    RS_DEBUG->print("QC_ApplicationWindow::slotFileSaveAs()");
+-	if (doSave(getMDIWindow(), true))
+-		recentFiles->updateRecentFilesMenu();
++   RS_DEBUG->print("QC_ApplicationWindow::slotFileSaveAs()");
++   if (windowIsInBlockMode) {
++     RS_ActionInterface* a = new RS_ActionBlocksSave(*getDocument(), *getGraphicView());
++     const QString currentWindowTitle     = getMDIWindow()->windowTitle();
++     const int editingBlockNameStartIndex = currentWindowTitle.indexOf("'")     + 1;
++     const int editingBlockNameEndIndex   = currentWindowTitle.lastIndexOf("'") - 1;
++     const int editingBlockNameLength = editingBlockNameEndIndex - editingBlockNameStartIndex + 1;
++     getDocument()->getBlockList()->activate(currentWindowTitle.mid(editingBlockNameStartIndex, editingBlockNameLength));
++     getGraphicView()->setCurrentAction(a);
++   } else {
++	  if (doSave(getMDIWindow(), true))
++		  recentFiles->updateRecentFilesMenu();
++   }
+ }
+ 
+ bool QC_ApplicationWindow::slotFileSaveAll()
+diff --git a/librecad/src/main/qc_applicationwindow.h b/librecad/src/main/qc_applicationwindow.h
+index 51cc9ae2..f609926e 100644
+--- a/librecad/src/main/qc_applicationwindow.h
++++ b/librecad/src/main/qc_applicationwindow.h
+@@ -311,6 +311,8 @@ protected:
+ 
+ private:
+ 
++    bool windowIsInBlockMode = false;
++
+     QMenu* createPopupMenu() override;
+ 
+     QString format_filename_caption(const QString &qstring_in);
+-- 
+2.25.1
+

@@ -1,0 +1,325 @@
+From e9eacc95fe3382909a6610cb377d25ad4cf2a681 Mon Sep 17 00:00:00 2001
+From: Melwyn Francis Carlo <melwyncarlo@gmail.com>
+Date: Tue, 2 Nov 2021 16:36:49 +0530
+Subject: [PATCH] Create Patch File
+
+---
+ 0001-Create-Patch-File_OLD.patch | 195 +++++++++++++++++++++++++++++++
+ client_test.py                   |  75 ++++++++++--
+ 2 files changed, 259 insertions(+), 11 deletions(-)
+ create mode 100644 0001-Create-Patch-File_OLD.patch
+
+diff --git a/0001-Create-Patch-File_OLD.patch b/0001-Create-Patch-File_OLD.patch
+new file mode 100644
+index 0000000..efdb2cb
+--- /dev/null
++++ b/0001-Create-Patch-File_OLD.patch
+@@ -0,0 +1,195 @@
++From f3ce4eeb1c69e449785f7bcee6922ac4c3272679 Mon Sep 17 00:00:00 2001
++From: Melwyn Francis Carlo <melwyncarlo@gmail.com>
++Date: Tue, 2 Nov 2021 16:00:21 +0530
++Subject: [PATCH] Create Patch File
++
++---
++ __pycache__/client3.cpython-38.pyc | Bin 0 -> 1154 bytes
++ client3.py                         |  16 ++++--
++ client_test.py                     |  89 +++++++++++++++++++++++------
++ 3 files changed, 83 insertions(+), 22 deletions(-)
++ create mode 100644 __pycache__/client3.cpython-38.pyc
++
++diff --git a/__pycache__/client3.cpython-38.pyc b/__pycache__/client3.cpython-38.pyc
++new file mode 100644
++index 0000000000000000000000000000000000000000..e8bea7c57eb9572bde3ebe1696be9faf3d7dabe8
++GIT binary patch
++literal 1154
++zcmYjRPjA~c6elH0mJ>V6^55%)8&GTpmMTRrMbK^ClCHq825EyHO0*DY@i|r^OAbX3
++zjprN&?}IqUeTLn4*hk=Xr`~tkX-{+#l*IeXr^okxe9-H5dx_vWS^G`?*(Btj+W2^(
++zk32=H{zj&VqB#)@Nd<MbCp;&8!IUQg<%>`;75q*_Lxrk=GJ>Xx&OQAXEWt8_GdiP(
++z<lTGG0y=L4J6oB50>OM0yt#KxuIV+Me_BhimJzWIYZ$vHHlP6;Gy0Z^O|d1m#SZMi
++zI&3~6&{0j;ge};Hoj%(lGfK(Dd-N_r1nX+KLy)&RWaizR{jBH->9#*$Kjdig`M{Xb
++zejMjzD)T{Enf=FmkN4t>G3d+hGWE@`SJ}UmkQC`|1*kEk1ElIHvMJ)yAy?GYn%5!9
++z$NT7&=WKRo`%`b~Zxa>VBUfxnYir8-466wz`}|m!YMcU>dCto|Hv`}WfC9yTk@*-Z
++zZc2U%1!!q7h%0I2sLTq(ZBUsqJ+}>0j*?!cY%tPU3JY6S=N~*Qu}f{x&r4~#fekLk
++zr2$>LZ4*C87V%AtU8uV5?hm4uQT%rj56U6L!+t7tUdD%IIvzq{s`!O0<SEp8jJ2OZ
++zioS=>Gcy?X;-8LR9PAoM2fGHd?mpZdT|SD_Jj38e4@Q@^bqeMXJ2-Y7;5C&SLqDRc
++zxLZ`W(U;a0-mY4&$$`Fs%9JXKL)B8=3Bo?5_Xq;%Prl&K!EgjAD{B~CYl-BtP&ayy
++z>-sT|Tz6ehG;Ts}m7Y6Tuoec|2y1;+=j)<Xg~$ktJVy13J57?I%!(wLeEG75Rq^{3
++zmxh0Z!0z9#zUJ7!lkOVSx|7Id!#L}I|HFax51;+m{me3x4MDK8sw_mPvEFhhR>nHd
++zv)%&@IFOYQ;ldWd%h%6dy|MJj;dEC>A%~D8mSy<5HozRGU}<6le0Noe#%-1cW+_Kd
++z*sx#fp){6hkV=GZEGiMYN-G^<du~W{{S(mj1G&L)^HrFSV5;XtFR*$t#3|0<+f8&;
++a99cx&_L<MTs2MFq{wn1@L+>immiIsXxFkdX
++
++literal 0
++HcmV?d00001
++
++diff --git a/client3.py b/client3.py
++index f1771c3..f1fc870 100644
++--- a/client3.py
+++++ b/client3.py
++@@ -18,10 +18,10 @@
++ #  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ #  DEALINGS IN THE SOFTWARE.
++ 
++-import urllib.request
++ import time
++ import json
++ import random
+++import urllib.request
++ 
++ # Server API URLs
++ QUERY = "http://localhost:8080/query?id={}"
++@@ -32,17 +32,20 @@ N = 500
++ def getDataPoint(quote):
++ 	""" Produce all of the needed values to generate a datapoint """
++ 	""" ------------- Update this function ------------- """
++-	stock = quote['stock']
+++	stock 	 = quote['stock']
++ 	bid_price = float(quote['top_bid']['price'])
++ 	ask_price = float(quote['top_ask']['price'])
++-	price = bid_price
+++	price 	 = (bid_price + ask_price) / 2
++ 	return stock, bid_price, ask_price, price
++ 
++ def getRatio(price_a, price_b):
++ 	""" Get ratio of price_a and price_b """
++ 	""" ------------- Update this function ------------- """
++ 	""" Also create some unit tests for this function in client_test.py """
++-	return 1
+++	if (price_b == 0):
+++		# Catch the ZeroDevisionError exception.
+++		return
+++	return price_a / price_b
++ 
++ # Main
++ if __name__ == "__main__":
++@@ -52,8 +55,11 @@ if __name__ == "__main__":
++ 		quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
++ 
++ 		""" ----------- Update to get the ratio --------------- """
+++		prices = {}
++ 		for quote in quotes:
++ 			stock, bid_price, ask_price, price = getDataPoint(quote)
+++			prices[stock] = price
++ 			print ("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price, price))
++ 
++-		print ("Ratio %s" % getRatio(price, price))
+++		print ("Ratio %s" % (getRatio(prices['ABC'], prices['DEF'])))
+++
++diff --git a/client_test.py b/client_test.py
++index af2bf26..ad25fdb 100644
++--- a/client_test.py
+++++ b/client_test.py
++@@ -1,25 +1,80 @@
++ import unittest
++-from client3 import getDataPoint
++ 
++-class ClientTest(unittest.TestCase):
++-  def test_getDataPoint_calculatePrice(self):
++-    quotes = [
++-      {'top_ask': {'price': 121.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
++-      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
++-    ]
++-    """ ------------ Add the assertion below ------------ """
++-
++-  def test_getDataPoint_calculatePriceBidGreaterThanAsk(self):
++-    quotes = [
++-      {'top_ask': {'price': 119.2, 'size': 36}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 120.48, 'size': 109}, 'id': '0.109974697771', 'stock': 'ABC'},
++-      {'top_ask': {'price': 121.68, 'size': 4}, 'timestamp': '2019-02-11 22:06:30.572453', 'top_bid': {'price': 117.87, 'size': 81}, 'id': '0.109974697771', 'stock': 'DEF'}
++-    ]
++-    """ ------------ Add the assertion below ------------ """
+++from client3 import getDataPoint, getRatio
++ 
+++class ClientTest(unittest.TestCase):
+++	def test_getDataPoint(self):
+++		test_quotes = \
+++		[
+++			{
+++				'top_ask'	: { 'price': 121.20, 'size':  36 }, 
+++				'timestamp'	: '2019-02-11 22:06:30.572453', 
+++				'top_bid'	: { 'price': 120.48, 'size': 109 }, 
+++				'id'			: '0.109974697771', 
+++				'stock'		: 'ABC'
+++			}, 
+++			{
+++				'top_ask'	: { 'price': 121.68, 'size':  4 }, 
+++				'timestamp'	: '2019-02-11 22:06:30.572453', 
+++				'top_bid'	: { 'price': 117.87, 'size': 81 }, 
+++				'id'			: '0.109974697771', 
+++				'stock'		: 'DEF'
+++			}, 
+++			# In the below dictionary, the price bid is greater than the ask price.
+++			{
+++				'top_ask'	: { 'price': 119.20, 'size':  36 }, 
+++				'timestamp'	: '2019-02-11 22:06:30.572453', 
+++				'top_bid'	: { 'price': 120.48, 'size': 109 }, 
+++				'id'			: '0.109974697771', 
+++				'stock'	: 'ABC'
+++			} 
+++		]
+++		""" ------------ Add the assertion below ------------ """
+++		for test_quote in test_quotes:
+++			reference_dataPoint = \
+++			(
+++				 test_quote['stock'], 
+++				 test_quote['top_bid']['price'], 
+++				 test_quote['top_ask']['price'], 
+++				(test_quote['top_bid']['price'] + test_quote['top_ask']['price']) / 2 
+++			)
+++			self.assertEqual(getDataPoint(test_quote), reference_dataPoint)
++ 
++-  """ ------------ Add more unit tests ------------ """
+++	""" ------------ Add more unit tests ------------ """
+++	def test_getRatio(self):
+++		test_quotes_stock_ABC = \
+++		{
+++			'top_ask'	: { 'price':   0.00, 'size':  36 }, 
+++			'timestamp'	: '2019-02-11 22:06:30.572453', 
+++			'top_bid'	: { 'price':   0.00, 'size': 109 }, 
+++			'id'			: '0.109974697771', 
+++			'stock'		: 'ABC'
+++		}
+++		test_quotes_stock_DEF1 = \
+++		{
+++			'top_ask'	: { 'price': 121.68, 'size':  4 }, 
+++			'timestamp'	: '2019-02-11 22:06:30.572453', 
+++			'top_bid'	: { 'price':   0.00, 'size': 81 }, 
+++			'id'			: '0.109974697771', 
+++			'stock'		: 'DEF1'
+++		}
+++		test_quotes_stock_DEF2 = \
+++		{
+++			'top_ask'	: { 'price':   0.00, 'size':  4 }, 
+++			'timestamp'	: '2019-02-11 22:06:30.572453', 
+++			'top_bid'	: { 'price': 121.68, 'size': 81 }, 
+++			'id'			: '0.109974697771', 
+++			'stock'		: 'DEF2'
+++		}
+++		""" ------------ Add the assertion below ------------ """
+++		self.assertIsNotNone	(getRatio (getDataPoint(test_quotes_stock_ABC) [3], getDataPoint(test_quotes_stock_DEF1)[3]))
+++		self.assertEqual		(getRatio (getDataPoint(test_quotes_stock_ABC) [3], getDataPoint(test_quotes_stock_DEF1)[3]), 0.0)
+++		self.assertIsNone		(getRatio (getDataPoint(test_quotes_stock_DEF1)[3], getDataPoint(test_quotes_stock_ABC) [3]))
+++		self.assertIsNone		(getRatio (getDataPoint(test_quotes_stock_DEF1)[3], getDataPoint(test_quotes_stock_ABC) [3]))
+++		self.assertEqual		(getRatio (getDataPoint(test_quotes_stock_DEF1)[3], getDataPoint(test_quotes_stock_DEF2)[3]), 1.0)
++ 
++ 
++ 
++ if __name__ == '__main__':
++-    unittest.main()
+++	unittest.main()
+++
++-- 
++2.25.1
++
+diff --git a/client_test.py b/client_test.py
+index ad25fdb..89f8ca1 100644
+--- a/client_test.py
++++ b/client_test.py
+@@ -38,11 +38,11 @@ class ClientTest(unittest.TestCase):
+ 				 test_quote['top_ask']['price'], 
+ 				(test_quote['top_bid']['price'] + test_quote['top_ask']['price']) / 2 
+ 			)
+-			self.assertEqual(getDataPoint(test_quote), reference_dataPoint)
++			self.assertEqual (getDataPoint (test_quote), reference_dataPoint)
+ 
+ 	""" ------------ Add more unit tests ------------ """
+-	def test_getRatio(self):
+-		test_quotes_stock_ABC = \
++	def test_getRatio_DenominatorZero(self):
++		test_quote_stock_ABC = \
+ 		{
+ 			'top_ask'	: { 'price':   0.00, 'size':  36 }, 
+ 			'timestamp'	: '2019-02-11 22:06:30.572453', 
+@@ -50,7 +50,27 @@ class ClientTest(unittest.TestCase):
+ 			'id'			: '0.109974697771', 
+ 			'stock'		: 'ABC'
+ 		}
+-		test_quotes_stock_DEF1 = \
++		test_quote_stock_DEF = \
++		{
++			'top_ask'	: { 'price': 121.68, 'size':  4 }, 
++			'timestamp'	: '2019-02-11 22:06:30.572453', 
++			'top_bid'	: { 'price':   0.00, 'size': 81 }, 
++			'id'			: '0.109974697771', 
++			'stock'		: 'DEF'
++		}
++		""" ------------ Add the assertion below ------------ """
++		self.assertIsNone (getRatio (getDataPoint (test_quote_stock_DEF) [3], getDataPoint (test_quote_stock_ABC) [3]))
++
++	def test_getRatio_NumeratorZero(self):
++		test_quote_stock_ABC = \
++		{
++			'top_ask'	: { 'price':   0.00, 'size':  36 }, 
++			'timestamp'	: '2019-02-11 22:06:30.572453', 
++			'top_bid'	: { 'price':   0.00, 'size': 109 }, 
++			'id'			: '0.109974697771', 
++			'stock'		: 'ABC'
++		}
++		test_quote_stock_DEF = \
+ 		{
+ 			'top_ask'	: { 'price': 121.68, 'size':  4 }, 
+ 			'timestamp'	: '2019-02-11 22:06:30.572453', 
+@@ -58,21 +78,54 @@ class ClientTest(unittest.TestCase):
+ 			'id'			: '0.109974697771', 
+ 			'stock'		: 'DEF1'
+ 		}
+-		test_quotes_stock_DEF2 = \
++		""" ------------ Add the assertion below ------------ """
++		self.assertIsNotNone	(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]))
++		self.assertFalse		(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]))
++		self.assertNotEqual	(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]), 1.0)
++		self.assertEqual		(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]), 0.0)
++
++	def test_getRatio_IsUnity(self):
++		test_quote_stock_ABC = \
++		{
++			'top_ask'	: { 'price': 121.68, 'size':  4 }, 
++			'timestamp'	: '2019-02-11 22:06:30.572453', 
++			'top_bid'	: { 'price':   0.00, 'size': 81 }, 
++			'id'			: '0.109974697771', 
++			'stock'		: 'ABC'
++		}
++		test_quote_stock_DEF = \
+ 		{
+ 			'top_ask'	: { 'price':   0.00, 'size':  4 }, 
+ 			'timestamp'	: '2019-02-11 22:06:30.572453', 
+ 			'top_bid'	: { 'price': 121.68, 'size': 81 }, 
+ 			'id'			: '0.109974697771', 
+-			'stock'		: 'DEF2'
++			'stock'		: 'DEF'
+ 		}
+ 		""" ------------ Add the assertion below ------------ """
+-		self.assertIsNotNone	(getRatio (getDataPoint(test_quotes_stock_ABC) [3], getDataPoint(test_quotes_stock_DEF1)[3]))
+-		self.assertEqual		(getRatio (getDataPoint(test_quotes_stock_ABC) [3], getDataPoint(test_quotes_stock_DEF1)[3]), 0.0)
+-		self.assertIsNone		(getRatio (getDataPoint(test_quotes_stock_DEF1)[3], getDataPoint(test_quotes_stock_ABC) [3]))
+-		self.assertIsNone		(getRatio (getDataPoint(test_quotes_stock_DEF1)[3], getDataPoint(test_quotes_stock_ABC) [3]))
+-		self.assertEqual		(getRatio (getDataPoint(test_quotes_stock_DEF1)[3], getDataPoint(test_quotes_stock_DEF2)[3]), 1.0)
++		self.assertIsNotNone	(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]))
++		self.assertTrue		(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]))
++		self.assertNotEqual	(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]), 0.0)
++		self.assertEqual		(getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]), 1.0)
+ 
++	def test_getRatio_IsNormal(self):
++		test_quote_stock_ABC = \
++		{
++			'top_ask'	: { 'price': 100.00, 'size':  4 }, 
++			'timestamp'	: '2019-02-11 22:06:30.572453', 
++			'top_bid'	: { 'price': 100.00, 'size': 81 }, 
++			'id'			: '0.109974697771', 
++			'stock'		: 'ABC'
++		}
++		test_quote_stock_DEF = \
++		{
++			'top_ask'	: { 'price':   0.00, 'size':  4 }, 
++			'timestamp'	: '2019-02-11 22:06:30.572453', 
++			'top_bid'	: { 'price': 100.00, 'size': 81 }, 
++			'id'			: '0.109974697771', 
++			'stock'		: 'DEF'
++		}
++		""" ------------ Add the assertion below ------------ """
++		self.assertIn (getRatio (getDataPoint (test_quote_stock_ABC) [3], getDataPoint (test_quote_stock_DEF) [3]), set(range(10)))
+ 
+ 
+ if __name__ == '__main__':
+-- 
+2.25.1
+
