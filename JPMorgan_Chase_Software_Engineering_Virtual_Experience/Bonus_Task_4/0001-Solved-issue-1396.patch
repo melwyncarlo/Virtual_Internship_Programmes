@@ -1,0 +1,128 @@
+From b65ab25dea1f84f3cd1eb3abdc347caadfb9fea6 Mon Sep 17 00:00:00 2001
+From: Melwyn Francis Carlo <melwyncarlo@gmail.com>
+Date: Tue, 16 Nov 2021 11:00:45 +0530
+Subject: [PATCH] Solved issue #1396
+
+Pull Request Link: https://github.com/LibreCAD/LibreCAD/pull/1401
+
+---
+ librecad/src/lib/engine/rs_dimangular.cpp   | 31 ++++++++++++---------
+ librecad/src/lib/engine/rs_dimdiametric.cpp |  1 +
+ librecad/src/lib/engine/rs_dimlinear.cpp    |  1 +
+ librecad/src/lib/engine/rs_dimradial.cpp    | 10 +++++--
+ 4 files changed, 27 insertions(+), 16 deletions(-)
+
+diff --git a/librecad/src/lib/engine/rs_dimangular.cpp b/librecad/src/lib/engine/rs_dimangular.cpp
+index 3f2920a2..d93d6ed3 100644
+--- a/librecad/src/lib/engine/rs_dimangular.cpp
++++ b/librecad/src/lib/engine/rs_dimangular.cpp
+@@ -131,6 +131,7 @@ RS_Entity* RS_DimAngular::clone() const
+     d->setOwner( isOwner());
+     d->initId();
+     d->detach();
++    d->updateDim();
+ 
+     return d;
+ }
+@@ -341,19 +342,23 @@ void RS_DimAngular::updateDim(bool autoText /*= false*/)
+ 
+     RS_Vector distV;
+     double textAngle {0.0};
+-    double angle1 {textPos.angleTo( dimCenter) - M_PI_2};
+-
+-    // rotate text so it's readable from the bottom or right (ISO)
+-    // quadrant 1 & 4
+-    if (angle1 > M_PI_2 * 3.0 + 0.001
+-        || angle1 < M_PI_2 + 0.001) {
+-        distV.setPolar( av.gap(), angle1 + M_PI_2);
+-        textAngle = angle1;
+-    }
+-    // quadrant 2 & 3
+-    else {
+-        distV.setPolar( av.gap(), angle1 - M_PI_2);
+-        textAngle = angle1 + M_PI;
++
++    if (!this->getInsideHorizontalText())
++    {
++        double angle1 {textPos.angleTo( dimCenter) - M_PI_2};
++
++        // rotate text so it's readable from the bottom or right (ISO)
++        // quadrant 1 & 4
++        if (angle1 > M_PI_2 * 3.0 + 0.001
++            || angle1 < M_PI_2 + 0.001) {
++            distV.setPolar( av.gap(), angle1 + M_PI_2);
++            textAngle = angle1;
++        }
++        // quadrant 2 & 3
++        else {
++            distV.setPolar( av.gap(), angle1 - M_PI_2);
++            textAngle = angle1 + M_PI;
++        }
+     }
+ 
+     // move text away from dimension line:
+diff --git a/librecad/src/lib/engine/rs_dimdiametric.cpp b/librecad/src/lib/engine/rs_dimdiametric.cpp
+index baada668..70226e7c 100644
+--- a/librecad/src/lib/engine/rs_dimdiametric.cpp
++++ b/librecad/src/lib/engine/rs_dimdiametric.cpp
+@@ -76,6 +76,7 @@ RS_Entity* RS_DimDiametric::clone() const {
+ 	d->setOwner(isOwner());
+ 	d->initId();
+ 	d->detach();
++   d->updateDim();
+ 	return d;
+ }
+ 
+diff --git a/librecad/src/lib/engine/rs_dimlinear.cpp b/librecad/src/lib/engine/rs_dimlinear.cpp
+index c9382a18..fd0b3404 100644
+--- a/librecad/src/lib/engine/rs_dimlinear.cpp
++++ b/librecad/src/lib/engine/rs_dimlinear.cpp
+@@ -83,6 +83,7 @@ RS_Entity* RS_DimLinear::clone() const {
+ 	d->setOwner(isOwner());
+ 	d->initId();
+ 	d->detach();
++   d->updateDim();
+ 	return d;
+ }
+ 
+diff --git a/librecad/src/lib/engine/rs_dimradial.cpp b/librecad/src/lib/engine/rs_dimradial.cpp
+index be2cda13..36f58d13 100644
+--- a/librecad/src/lib/engine/rs_dimradial.cpp
++++ b/librecad/src/lib/engine/rs_dimradial.cpp
+@@ -74,6 +74,7 @@ RS_Entity* RS_DimRadial::clone() const {
+ 	d->setOwner(isOwner());
+ 	d->initId();
+ 	d->detach();
++    d->updateDim();
+ 	return d;
+ }
+ 
+@@ -223,6 +224,11 @@ void RS_DimRadial::updateDim(bool autoText) {
+         textAngle = angle+M_PI;
+     }
+ 
++    if (!this->getInsideHorizontalText())
++    {
++        text->rotate({0., 0.}, textAngle);
++    }
++
+     // move text label:
+     RS_Vector textPos;
+ 
+@@ -239,12 +245,10 @@ void RS_DimRadial::updateDim(bool autoText) {
+         textPos += distV;
+         data.middleOfText = textPos;
+     }
+-
+-	text->rotate({0., 0.}, textAngle);
+     text->move(textPos);
+ 
+     text->setPen(RS_Pen(getTextColor(), RS2::WidthByBlock, RS2::SolidLine));
+-	text->setLayer(nullptr);
++    text->setLayer(nullptr);
+     addEntity(text);
+ 
+     calculateBorders();
+-- 
+2.25.1
+

@@ -1,0 +1,25 @@
+From 2de29f7bf6343da0f8b8bb50ad18e1155f288c1b Mon Sep 17 00:00:00 2001
+From: Melwyn Francis Carlo <melwyncarlo@gmail.com>
+Date: Tue, 16 Nov 2021 12:43:23 +0530
+Subject: [PATCH] Solved issue #1368
+
+---
+ librecad/src/ui/forms/qg_mousewidget.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/librecad/src/ui/forms/qg_mousewidget.cpp b/librecad/src/ui/forms/qg_mousewidget.cpp
+index 65c31d7d..6dabc672 100644
+--- a/librecad/src/ui/forms/qg_mousewidget.cpp
++++ b/librecad/src/ui/forms/qg_mousewidget.cpp
+@@ -40,7 +40,7 @@ QG_MouseWidget::QG_MouseWidget(QWidget* parent, const char* name, Qt::WindowFlag
+ 
+     lLeftButton->setText("");
+     lRightButton->setText("");
+-    lMousePixmap->setPixmap( QPixmap(":/icons/mouse.svg"));
++    lMousePixmap->setPixmap( QPixmap(":/ui/mousebuttons24.png"));
+ }
+ 
+ /*
+-- 
+2.25.1
+
