@@ -1,4 +1,4 @@
-## **Task #1 : **Coding
+## Task #1 : Coding
 
 <hr>
 
